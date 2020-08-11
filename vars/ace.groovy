@@ -154,14 +154,15 @@ void call(Map options = [:], Object body) {
           }
 
           body.kaniko = { opts = [:] ->
-            opts.registry = opts.registry ?: body.ace.helm.registry
+            aOpts = opts ?: [:]
+            aOpts.registry = aOpts.registry ?: body.ace.helm.registry
 
             List<String> namePart = body.ace.helm.image.split(':')
 
-            opts.name = opts.name ?: namePart[0]
-            opts.tag = opts.tag ?: namePart[1]
+            aOpts.name = aOpts.name ?: namePart[0]
+            aOpts.tag = aOpts.tag ?: namePart[1]
 
-            kanikoBuild(opts)
+            kanikoBuild(aOpts)
           }
 
           body.scanWithTwistlock = { opts = [:] ->
@@ -188,6 +189,15 @@ void call(Map options = [:], Object body) {
             aOpts.image = "${body.ace.helm.registry}/${body.ace.helm.image}"
             aOpts.tag = body.ace.helm.image.split(':')[1]
             acePushConfigToGit(aOpts)
+          }
+
+          body.updateImageTagInGit = { opts = [:] ->
+            aOpts = opts ?: [:]
+            aOpts.name = body.ace.name
+            aOpts.tag = body.ace.helm.image.split(':')[1]
+            aOpts.gitops = body.ace.gitops
+
+            aceUpdateImageTagInGit(aOpts)
           }
         }
 
